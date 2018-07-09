@@ -1,0 +1,534 @@
+vaulex@vm-mgtu:~$ export GITHUB_TOKEN=be10e9a871be578b35804db67cc64784195ed2b6
+vaulex@vm-mgtu:~$ export GITHUB_USERNAME=vaulex
+vaulex@vm-mgtu:~$ cd ${GITHUB_USERNAME}/workspace
+vaulex@vm-mgtu:~/vaulex/workspace$ pushd .
+~/vaulex/workspace ~/vaulex/workspace
+vaulex@vm-mgtu:~/vaulex/workspace$ source scripts/activate
+vaulex@vm-mgtu:~/vaulex/workspace$ go get github.com/github/hub
+vaulex@vm-mgtu:~/vaulex/workspace$ mkdir ~/.config
+mkdir: невозможно создать каталог «/home/vaulex/.config»: Файл существует
+vaulex@vm-mgtu:~/vaulex/workspace$ cat > ~/.config/hub <<EOF
+> github.com:
+> - user: ${GITHUB_USERNAME}
+>   oauth_token: ${GITHUB_TOKEN}
+>   protocol: https
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace$ git config --global hub.protocol https
+vaulex@vm-mgtu:~/vaulex/workspace$ wget https://github.com/${GITHUB_USERNAME}/lab09/archive/v0.1.0.0.tar.gz
+--2018-02-09 23:19:36--  https://github.com/vaulex/lab09/archive/v0.1.0.0.tar.gz
+Распознаётся github.com (github.com)... 192.30.253.113, 192.30.253.112
+Подключение к github.com (github.com)|192.30.253.113|:443... соединение установлено.
+HTTP-запрос отправлен. Ожидание ответа... 302 Found
+Адрес: https://codeload.github.com/vaulex/lab09/tar.gz/v0.1.0.0 [переход]
+--2018-02-09 23:19:37--  https://codeload.github.com/vaulex/lab09/tar.gz/v0.1.0.0
+Распознаётся codeload.github.com (codeload.github.com)... 192.30.253.120, 192.30.253.121
+Подключение к codeload.github.com (codeload.github.com)|192.30.253.120|:443... соединение установлено.
+HTTP-запрос отправлен. Ожидание ответа... 200 OK
+Длина: нет данных [application/x-gzip]
+Сохранение в каталог: ««v0.1.0.0.tar.gz»».
+
+v0.1.0.0.tar.gz         [  <=>               ] 112,57K   275KB/s    in 0,4s    
+
+2018-02-09 23:19:38 (275 KB/s) - «v0.1.0.0.tar.gz» сохранён [115267]
+
+vaulex@vm-mgtu:~/vaulex/workspace$ export PRINT_SHA1=`openssl sha1 v0.1.0.0.tar.gz | cut -d'=' -f2 | cut -c2-41`
+vaulex@vm-mgtu:~/vaulex/workspace$ echo $PRINT_SHA1
+3fd817e48fc903b3d40c543dbf5493b8393356d3
+vaulex@vm-mgtu:~/vaulex/workspace$ rm -rf v0.1.0.0.tar.gz
+vaulex@vm-mgtu:~/vaulex/workspace$ git clone https://github.com/ruslo/hunter projects/hunter
+Клонирование в «projects/hunter»…
+remote: Counting objects: 30880, done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 30880 (delta 0), reused 0 (delta 0), pack-reused 30877
+Получение объектов: 100% (30880/30880), 6.10 MiB | 1.19 MiB/s, готово.
+Определение изменений: 100% (19362/19362), готово.
+Проверка соединения… готово.
+vaulex@vm-mgtu:~/vaulex/workspace$ cd projects/hunter && git checkout v0.19.137
+Note: checking out 'v0.19.137'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b <new-branch-name>
+
+HEAD сейчас на 1c1f821... Add latest GTest release. (#1122)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote show
+origin
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ hub fork
+Error getting current user: Unauthorized (HTTP 401)
+Bad credentials
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote -v
+origin	https://github.com/ruslo/hunter (fetch)
+origin	https://github.com/ruslo/hunter (push)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote show
+origin
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote show ${GITHUB_USERNAME}
+fatal: 'vaulex' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git checkout v0.19.137
+HEAD сейчас на 1c1f821... Add latest GTest release. (#1122)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote show
+origin
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ hub fork
+Error getting current user: Unauthorized (HTTP 401)
+Bad credentials
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ mkdir cmake/projects/print
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ cat > cmake/projects/print/hunter.cmake <<EOF
+> include(hunter_add_version)
+> include(hunter_cacheable)
+> include(hunter_cmake_args)
+> include(hunter_download)
+> include(hunter_pick_scheme)
+> 
+> hunter_add_version(
+>     PACKAGE_NAME
+>     print
+>     VERSION
+>     "0.1.0.0"
+>     URL
+>     "https://github.com/${GITHUB_USERNAME}/lab09/archive/v0.1.0.0.tar.gz"
+>     SHA1
+>     ${PRINT_SHA1}
+> )
+> 
+> hunter_pick_scheme(DEFAULT url_sha1_cmake)
+> 
+> hunter_cmake_args(
+>     print
+>     CMAKE_ARGS
+>     BUILD_EXAMPLES=NO
+>     BUILD_TESTS=NO
+> )
+> hunter_cacheable(print)
+> hunter_download(PACKAGE_NAME print)
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ cat >> cmake/configs/default.cmake <<EOF
+> hunter_config(print VERSION 0.1.0.0)
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git status
+HEAD отделен на v0.19.137
+Изменения, которые не в индексе для коммита:
+  (используйте «git add <файл>…», чтобы добавить файл в индекс)
+  (используйте «git checkout -- <файл>…», чтобы отменить изменения
+   в рабочем каталоге)
+
+	изменено:      cmake/configs/default.cmake
+
+Неотслеживаемые файлы:
+  (используйте «git add <файл>…», чтобы добавить в то, что будет включено в коммит)
+
+	cmake/projects/print/
+
+нет изменений добавленных для коммита
+(используйте «git add» и/или «git commit -a»)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote remove
+использование: git remote remove <имя>
+
+
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote -v
+origin	https://github.com/ruslo/hunter (fetch)
+origin	https://github.com/ruslo/hunter (push)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote remove origin
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote add origin git@github.com:${GITHUB_USERNAME}/hunter
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git remote -v
+origin	git@github.com:vaulex/hunter (fetch)
+origin	git@github.com:vaulex/hunter (push)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git add .
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git commit -m"added print package"
+[отделенный HEAD 775c893] added print package
+ 2 files changed, 28 insertions(+)
+ create mode 100644 cmake/projects/print/hunter.cmake
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git push ${GIHUB_USERNAME} master
+warning: push.default не установлен; его неявное значение было изменено в Git версии 2.0 с «matching» на «simple». Чтобы прекратить вывод этого сообщения и сохранить старое поведение, используйте:
+
+  git config --global push.default matching
+
+Чтобы прекратить вывод этого сообщения и использовать новое поведение, используйте:
+
+  git config --global push.default simple
+
+Когда push.default установлено в «matching», git будет отправлять изменения локальных веток в существующие внешние ветки с таким же именем.
+
+Начиная с Git версии 2.0, по умолчанию используется более консервативное поведение «simple», которое отправляет изменения текущей ветки в соответствующую внешнюю ветку, из которой «git pull» забирает изменения.
+
+Смотрите «git help config» и ищите «push.default» для дополнительной информации.
+(режим «simple» появился в Git версии 1.7.11. Используйте похожий режим «current» вместо «simple», если вы иногда используете старые версии Git)
+
+fatal: Вы сейчас не находитесь ни на одной из веток.
+Чтобы отправить историю, ведущую к текущему (отделенный HEAD) состоянию, используйте
+
+    git push master HEAD:<имя-внешней-ветки>
+
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git push master HEAD:775c893
+fatal: 'master' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git push origin master
+Everything up-to-date
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git push ${GIHUB_USERNAME} master
+warning: push.default не установлен; его неявное значение было изменено в Git версии 2.0 с «matching» на «simple». Чтобы прекратить вывод этого сообщения и сохранить старое поведение, используйте:
+
+  git config --global push.default matching
+
+Чтобы прекратить вывод этого сообщения и использовать новое поведение, используйте:
+
+  git config --global push.default simple
+
+Когда push.default установлено в «matching», git будет отправлять изменения локальных веток в существующие внешние ветки с таким же именем.
+
+Начиная с Git версии 2.0, по умолчанию используется более консервативное поведение «simple», которое отправляет изменения текущей ветки в соответствующую внешнюю ветку, из которой «git pull» забирает изменения.
+
+Смотрите «git help config» и ищите «push.default» для дополнительной информации.
+(режим «simple» появился в Git версии 1.7.11. Используйте похожий режим «current» вместо «simple», если вы иногда используете старые версии Git)
+
+fatal: Вы сейчас не находитесь ни на одной из веток.
+Чтобы отправить историю, ведущую к текущему (отделенный HEAD) состоянию, используйте
+
+    git push master HEAD:<имя-внешней-ветки>
+
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git push ${GIHUB_USERNAME} master HEAD
+fatal: 'master' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git status
+HEAD отделен начиная с v0.19.137
+нечего коммитить, нет изменений в рабочем каталоге
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git tag v0.19.137.1
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ git push origin master --tags
+Подсчет объектов: 8, готово.
+Сжатие объектов: 100% (6/6), готово.
+Запись объектов: 100% (8/8), 884 bytes | 0 bytes/s, готово.
+Total 8 (delta 4), reused 0 (delta 0)
+remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
+To git@github.com:vaulex/hunter
+ * [new tag]         v0.19.137.1 -> v0.19.137.1
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ export HUNTER_ROOT=`pwd`/hunter
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ mkdir lab10 && cd lab10
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter/lab10$ cd ..
+vaulex@vm-mgtu:~/vaulex/workspace/projects/hunter$ cd ..
+vaulex@vm-mgtu:~/vaulex/workspace/projects$ mkdir lab10 && cd lab10
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git init
+Инициализирован пустой репозиторий Git в /home/vaulex/vaulex/workspace/projects/lab10/.git/
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git remote add origin git@github.com:${GITHUB_USERNAME}/lab10
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ mkdir sources
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cat > sources/demo.cpp <<EOF
+> #include <print.hpp>
+> 
+> int main(int argc, char** argv) {
+> std::string text;
+> while(std::cin >> text) {
+> 
+.git/    sources/ 
+> std::ofstream out("log.txt", std::ios_base::app);
+> 
+.git/    sources/ 
+> print(text, out);
+> 
+.git/    sources/ 
+> out << std::endl;
+> }
+> }
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ wget https://github.com/hunter-packages/gate/archive/v0.8.1.tar.gz
+--2018-02-09 23:51:48--  https://github.com/hunter-packages/gate/archive/v0.8.1.tar.gz
+Распознаётся github.com (github.com)... 192.30.253.112, 192.30.253.113
+Подключение к github.com (github.com)|192.30.253.112|:443... соединение установлено.
+HTTP-запрос отправлен. Ожидание ответа... 302 Found
+Адрес: https://codeload.github.com/hunter-packages/gate/tar.gz/v0.8.1 [переход]
+--2018-02-09 23:51:49--  https://codeload.github.com/hunter-packages/gate/tar.gz/v0.8.1
+Распознаётся codeload.github.com (codeload.github.com)... 192.30.253.121, 192.30.253.120
+Подключение к codeload.github.com (codeload.github.com)|192.30.253.121|:443... соединение установлено.
+HTTP-запрос отправлен. Ожидание ответа... 200 OK
+Длина: нет данных [application/x-gzip]
+Сохранение в каталог: ««v0.8.1.tar.gz»».
+
+v0.8.1.tar.gz           [       <=>          ] 328,09K   150KB/s    in 2,2s    
+
+2018-02-09 23:51:52 (150 KB/s) - «v0.8.1.tar.gz» сохранён [335960]
+
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ tar -xzvf v0.8.1.tar.gz gate-0.8.1/cmake/HunterGate.cmake
+gate-0.8.1/cmake/HunterGate.cmake
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ mkdir cmake
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ mv gate-0.8.1/cmake/HunterGate.cmake cmake
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ rm -rf gate*/
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ rm *.tar.gz
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cat > CMakeLists.txt <<EOF
+> cmake_minimum_required(VERSION 3.0)
+> 
+> set(CMAKE_CXX_STANDARD 11)
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ wget https://github.com/${GITHUB_USERNAME}/hunter/archive/v0.19.137.1.tar.gz
+--2018-02-09 23:53:01--  https://github.com/vaulex/hunter/archive/v0.19.137.1.tar.gz
+Распознаётся github.com (github.com)... 192.30.253.113, 192.30.253.112
+Подключение к github.com (github.com)|192.30.253.113|:443... соединение установлено.
+HTTP-запрос отправлен. Ожидание ответа... 302 Found
+Адрес: https://codeload.github.com/vaulex/hunter/tar.gz/v0.19.137.1 [переход]
+--2018-02-09 23:53:02--  https://codeload.github.com/vaulex/hunter/tar.gz/v0.19.137.1
+Распознаётся codeload.github.com (codeload.github.com)... 192.30.253.121, 192.30.253.120
+Подключение к codeload.github.com (codeload.github.com)|192.30.253.121|:443... соединение установлено.
+HTTP-запрос отправлен. Ожидание ответа... 200 OK
+Длина: нет данных [application/x-gzip]
+Сохранение в каталог: ««v0.19.137.1.tar.gz»».
+
+v0.19.137.1.tar.gz      [     <=>            ]   1,06M   612KB/s    in 1,8s    
+
+2018-02-09 23:53:04 (612 KB/s) - «v0.19.137.1.tar.gz» сохранён [1114251]
+
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ export HUNTER_SHA1=`openssl sha1 v0.19.137.1.tar.gz | cut -d'=' -f2 | cut -c2-41`
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ echo $HUNTER_SHA1
+e4968c94d95e435acbfa9e61a70ec300d43f1e34
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ rm -rf v0.19.137.1.tar.gz
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cat >> CMakeLists.txt <<EOF
+> include(cmake/HunterGate.cmake)
+> 
+> HunterGate(
+>     URL "https://github.com/${GITHUB_USERNAME}/hunter/archive/v0.19.137.1.tar.gz"
+>     SHA1 "${HUNTER_SHA1}"
+> )
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cat >> CMakeLists.txt <<EOF
+> project(demo)
+> 
+> hunter_add_package(print)
+> find_package(print)
+> 
+> add_executable(demo \${CMAKE_CURRENT_SOURCE_DIR}/sources/demo.cpp)
+> target_link_libraries(demo print)
+> 
+> install(TARGETS demo RUNTIME DESTINATION bin)
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cat > .gitignore <<EOF
+> *build*/
+> *install*/
+> *.swp
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cat > README.md <<EOF
+> [![Build Status](https://travis-ci.org/${GITHUB_USERNAME}/lab10.svg?branch=master)](https://travis-ci.org/${GITHUB_USERNAME}/lab10)
+> the demo application redirects data from stdin to a file **log.txt** using a package **print**.
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cat > .travis.yml <<EOF
+> language: cpp
+> 
+> script:   
+> - cmake -H. -B_build
+> - cmake --build _build
+> EOF
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ travis lint
+Hooray, .travis.yml looks valid :)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git add .
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git commit -m"first commit"
+[master (корневой коммит) ea3135f] first commit
+ 6 files changed, 546 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 .travis.yml
+ create mode 100644 CMakeLists.txt
+ create mode 100644 README.md
+ create mode 100644 cmake/HunterGate.cmake
+ create mode 100644 sources/demo.cpp
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git push origin master
+ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git push origin master
+Подсчет объектов: 10, готово.
+Сжатие объектов: 100% (7/7), готово.
+Запись объектов: 100% (10/10), 5.61 KiB | 0 bytes/s, готово.
+Total 10 (delta 0), reused 0 (delta 0)
+To git@github.com:vaulex/lab10
+ * [new branch]      master -> master
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ travis accounts
+vaulex (Vaulex): subscribed, 7 repositories
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git add .
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git commit -m"add LICENCE"
+[master ef63569] add LICENCE
+ 1 file changed, 21 insertions(+)
+ create mode 100644 LICENSE
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ git push origin master
+Подсчет объектов: 3, готово.
+Сжатие объектов: 100% (3/3), готово.
+Запись объектов: 100% (3/3), 892 bytes | 0 bytes/s, готово.
+Total 3 (delta 1), reused 0 (delta 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To git@github.com:vaulex/lab10
+   ea3135f..ef63569  master -> master
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ travis enable
+Detected repository as vaulex/lab10, is this correct? |yes| yes
+repository not known to Travis CI (or no access?)
+triggering sync: . done
+vaulex/lab10: enabled :)
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
+-- [hunter] Initializing Hunter workspace (e4968c94d95e435acbfa9e61a70ec300d43f1e34)
+-- [hunter]   https://github.com/vaulex/hunter/archive/v0.19.137.1.tar.gz
+-- [hunter]   -> /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/Download/Hunter/0.19.137/e4968c9
+-- The C compiler identification is GNU 5.4.0
+-- The CXX compiler identification is GNU 5.4.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- [hunter] Calculating Toolchain-SHA1
+-- [hunter] Calculating Config-SHA1
+-- [hunter] HUNTER_ROOT: /home/vaulex/vaulex/workspace/projects/hunter/hunter
+-- [hunter] [ Hunter-ID: e4968c9 | Toolchain-ID: b8de188 | Config-ID: 83da1ac ]
+-- [hunter] PRINT_ROOT: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Install (ver.: 0.1.0.0)
+-- [hunter] Building print
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/cache.cmake
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/args.cmake
+-- The C compiler identification is GNU 5.4.0
+-- The CXX compiler identification is GNU 5.4.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Build
+Scanning dependencies of target print-Release
+[  6%] Creating directories for 'print-Release'
+[ 12%] Performing download step (download, verify and extract) for 'print-Release'
+-- downloading...
+     src='https://github.com/vaulex/lab09/archive/v0.1.0.0.tar.gz'
+     dst='/home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/Download/print/0.1.0.0/3fd817e/v0.1.0.0.tar.gz'
+     timeout='none'
+-- downloading... done
+-- verifying file...
+     file='/home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/Download/print/0.1.0.0/3fd817e/v0.1.0.0.tar.gz'
+-- verifying file... done
+-- extracting...
+     src='/home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/Download/print/0.1.0.0/3fd817e/v0.1.0.0.tar.gz'
+     dst='/home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Source'
+-- extracting... [tar xfz]
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 18%] No patch step for 'print-Release'
+[ 25%] No update step for 'print-Release'
+[ 31%] Performing configure step for 'print-Release'
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/cache.cmake
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/args.cmake
+-- The C compiler identification is GNU 5.4.0
+-- The CXX compiler identification is GNU 5.4.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Build/print-Release-prefix/src/print-Release-build
+[ 37%] Performing build step for 'print-Release'
+Scanning dependencies of target print
+[ 50%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
+[100%] Linking CXX static library libprint.a
+[100%] Built target print
+[ 43%] Performing install step for 'print-Release'
+[100%] Built target print
+Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/lib/libprint.a
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/include
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/include/print.hpp
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/cmake/print-config.cmake
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/cmake/print-config-release.cmake
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/args.cmake
+[ 50%] Completed 'print-Release'
+[ 50%] Built target print-Release
+Scanning dependencies of target print-Debug
+[ 56%] Creating directories for 'print-Debug'
+[ 62%] Performing download step (download, verify and extract) for 'print-Debug'
+-- verifying file...
+     file='/home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/Download/print/0.1.0.0/3fd817e/v0.1.0.0.tar.gz'
+-- verifying file... done
+-- extracting...
+     src='/home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/Download/print/0.1.0.0/3fd817e/v0.1.0.0.tar.gz'
+     dst='/home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Source'
+-- extracting... [tar xfz]
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 68%] No patch step for 'print-Debug'
+[ 75%] No update step for 'print-Debug'
+[ 81%] Performing configure step for 'print-Debug'
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/cache.cmake
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/args.cmake
+-- The C compiler identification is GNU 5.4.0
+-- The CXX compiler identification is GNU 5.4.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Build/print-Debug-prefix/src/print-Debug-build
+[ 87%] Performing build step for 'print-Debug'
+Scanning dependencies of target print
+[ 50%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
+[100%] Linking CXX static library libprintd.a
+[100%] Built target print
+[ 93%] Performing install step for 'print-Debug'
+[100%] Built target print
+Install the project...
+-- Install configuration: "Debug"
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/lib/libprintd.a
+-- Up-to-date: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/include
+-- Up-to-date: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/include/print.hpp
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/cmake/print-config.cmake
+-- Installing: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/Install/cmake/print-config-debug.cmake
+loading initial cache file /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print/args.cmake
+[100%] Completed 'print-Debug'
+[100%] Built target print-Debug
+-- [hunter] Build step successful (dir: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/e4968c9/b8de188/83da1ac/Build/print)
+-- [hunter] Cache saved: /home/vaulex/vaulex/workspace/projects/hunter/hunter/_Base/Cache/raw/325394e8a3a4f6dae236988d53ccf2ba38da8d96.tar.bz2
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/vaulex/vaulex/workspace/projects/lab10/_build
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ cmake --build _build --target install
+Scanning dependencies of target demo
+[ 50%] Building CXX object CMakeFiles/demo.dir/sources/demo.cpp.o
+[100%] Linking CXX executable demo
+[100%] Built target demo
+Install the project...
+-- Install configuration: ""
+-- Installing: /home/vaulex/vaulex/workspace/projects/lab10/_install/bin/demo
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10$ mkdir artifacts && cd artifacts
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10/artifacts$ echo "text1 text2 text3" | ../_install/bin/demo
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10/artifacts$ cat log.txt
+text1
+text2
+text3
+vaulex@vm-mgtu:~/vaulex/workspace/projects/lab10/artifacts$ ^C
+
